@@ -164,7 +164,7 @@ jobs:
             git config pull.rebase false  # 使用 merge 而不是 rebase
             git pull origin main --no-edit || {
               echo "❌ 合并冲突，放弃本次推送"
-              git reset --hard HEAD~1  # 撤销提交
+              git reset --hard HEAD~1  # 撤销提交0
               exit 1
             }
             

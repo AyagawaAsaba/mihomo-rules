@@ -130,6 +130,17 @@ jobs:
               echo "| $filename | $filesize | [下载](https://github.com/${{ github.repository }}/releases/latest/download/$filename) |" >> rules/mrs/README.md
             fi
           done
+
+      - name: 设置 .gitignore
+        run: |
+          if [ ! -f .gitignore ]; then
+            echo "mihomo" > .gitignore
+            echo "/mihomo" >> .gitignore
+          else
+            grep -q "^mihomo$" .gitignore || echo "mihomo" >> .gitignore
+            grep -q "^/mihomo$" .gitignore || echo "/mihomo" >> .gitignore
+          fi
+          cat .gitignore
       
       - name: 提交转换结果
         env:
@@ -139,6 +150,9 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
+          # 清理临时文件
+          rm -f mihomo
           
           git add rules/mrs/
           

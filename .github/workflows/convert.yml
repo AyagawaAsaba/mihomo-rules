@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: NodeJs
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '24'
+      # - name: NodeJs
+      #   uses: actions/setup-node@v4
+      #   with: 
+      #     node-version: '24'
       
-      - name: 检出代码
-        uses: actions/checkout@v4
+      # - name: 检出代码
+      #   uses: actions/checkout@v4
       
       - name: 下载 Mihomo
         run: |

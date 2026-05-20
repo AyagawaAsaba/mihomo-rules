@@ -164,32 +164,12 @@ jobs:
           
           # 提交变更
           git commit -m "🤖 自动转换 MRS 规则 [$(date '+%Y-%m-%d %H:%M:%S')]"
-          
-          # 尝试拉取并合并
+                
+          # 拉取远程更新
           echo "🔄 检查远程更新..."
-          git fetch origin main
+          git pull --rebase origin main
           
-          # 检查本地是否领先
-          LOCAL=$(git rev-parse HEAD)
-          REMOTE=$(git rev-parse origin/main)
-          
-          if [ "$LOCAL" != "$REMOTE" ]; then
-            echo "远程有新的提交，尝试合并..."
-            git config pull.rebase false  # 使用 merge 而不是 rebase
-            git pull origin main --no-edit || {
-              echo "❌ 合并冲突，放弃本次推送"
-              git reset --hard HEAD~1  # 撤销提交0
-              exit 1
-            }
-            
-            # 如果没有冲突，重新提交（因为 pull 可能已经合并）
-            if [ -n "$(git status --porcelain)" ]; then
-              git add rules/mrs/
-              git commit -m "🤖 自动转换 MRS 规则 [$(date '+%Y-%m-%d %H:%M:%S')]"
-            fi
-          fi
-          
-          # 推送
+          # 推送更改
           echo "📤 推送到远程仓库..."
           git push origin main
           

@@ -132,13 +132,55 @@ jobs:
           done
       
       - name: 提交转换结果
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 设置认证
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          
           git add rules/mrs/
-          git diff --quiet && git diff --staged --quiet || git commit -m "🤖 自动转换 MRS 规则 [$(date '+%Y-%m-%d %H:%M:%S')]"
-          git push
-      
+          
+          # 检查是否有变更
+          if git diff --cached --quiet; then
+            echo "✅ 没有文件变更，跳过提交"
+            exit 0
+          fi
+          
+          # 提交变更
+          git commit -m "🤖 自动转换 MRS 规则 [$(date '+%Y-%m-%d %H:%M:%S')]"
+          
+          # 尝试拉取并合并
+          echo "🔄 检查远程更新..."
+          git fetch origin main
+          
+          # 检查本地是否领先
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse origin/main)
+          
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "远程有新的提交，尝试合并..."
+            git config pull.rebase false  # 使用 merge 而不是 rebase
+            git pull origin main --no-edit || {
+              echo "❌ 合并冲突，放弃本次推送"
+              git reset --hard HEAD~1  # 撤销提交
+              exit 1
+            }
+            
+            # 如果没有冲突，重新提交（因为 pull 可能已经合并）
+            if [ -n "$(git status --porcelain)" ]; then
+              git add rules/mrs/
+              git commit -m "🤖 自动转换 MRS 规则 [$(date '+%Y-%m-%d %H:%M:%S')]"
+            fi
+          fi
+          
+          # 推送
+          echo "📤 推送到远程仓库..."
+          git push origin main
+          
+          echo "✅ 提交和推送完成"
+        
       - name: 创建 Release
         uses: softprops/action-gh-release@v1
         with:

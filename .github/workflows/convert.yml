@@ -8,6 +8,9 @@ on:
       - 'rules/text/**'
   workflow_dispatch:  # 允许手动触发
 
+permissions:
+  contents: write  # ← Add this section
+
 jobs:
   convert:
     runs-on: ubuntu-latest

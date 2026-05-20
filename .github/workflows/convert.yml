@@ -21,8 +21,8 @@ jobs:
       #   with: 
       #     node-version: '24'
       
-      # - name: 检出代码
-      #   uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
       
       - name: 下载 Mihomo
         run: |
